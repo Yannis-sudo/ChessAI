@@ -1,1 +1,6 @@
 .env/
+scripts/
+__pycache__/
+*.pyc
+*.pyo
+practice/
