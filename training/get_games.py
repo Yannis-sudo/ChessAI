@@ -116,7 +116,6 @@ def get_games(max_games=100, player=0, year=2026, month=1):
         return
 
     positions = []
-    positions = []
 
     for game in data["games"]:
         try:
