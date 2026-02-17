@@ -3,8 +3,7 @@ import torch.nn as nn
 from random import randint
 import chess
 
-from training.get_games import get_games, get_next_player_month, players, update_next_player_month
-from training.eval_with_stockfish import eval_position
+from training.get_games import get_games
 
 piece_to_plane = {
     chess.PAWN: 0,
@@ -17,17 +16,14 @@ piece_to_plane = {
 
 def train_loop(model):
     # Get positions
-    random_player_id = randint(0, len(players) - 1)
-    next_player = get_next_player_month(players[random_player_id])
-    positions = get_games(100, random_player_id, next_player["year"], next_player["month"])
-    update_next_player_month(players[random_player_id])
+    positions = get_games(1000)
 
     # Training loop
     loss_fn = nn.MSELoss()
 
-    for pos in positions:
+    for pos in positions["positions"]:
         tensor = torch.zeros(12, 8, 8)
-        board = chess.Board(pos)
+        board = chess.Board(pos["fen"])
 
         for square in chess.SQUARES:
             piece = board.piece_at(square)
@@ -43,7 +39,7 @@ def train_loop(model):
         
         tensor = tensor.unsqueeze(0)
         optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
-        target_value = eval_position(board)
+        target_value = pos["evaluation"]
         target = torch.tensor([[target_value]])
 
         for step in range(100):
